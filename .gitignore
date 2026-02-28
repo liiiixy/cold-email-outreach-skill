@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Temp files
+/tmp/
+*.tmp
+
+# Secrets
+.env
+*.env
+.claude/settings.local.json
+
+# Project-specific data
+contact/
+agent/
