@@ -2,9 +2,11 @@
 email_generator.py - AI 个性化邮件生成
 
 负责：
-1. 构建邮件生成 prompt（根据商家信息 + 用户产品描述 + 可选模板）
+1. 构建邮件生成 prompt（根据客户信息 + 用户产品描述 + 可选模板）
 2. 解析生成结果（标题 + 正文）
 3. 批量生成管理
+
+通用模块：不预设任何行业特定字段，透传所有可用信息。
 """
 
 import json
@@ -23,38 +25,16 @@ def build_email_prompt(
     """
     构建单封邮件的生成 prompt。
 
-    参数:
-        merchant: 商家信息字典
-        product_description: 用户产品/服务描述
-        template: 可选的邮件模板/要求
-        language: 邮件语言 (en/zh)
-        sender_name: 发件人姓名
-        sender_company: 发件人公司名
+    透传客户所有可用字段，不预设哪些字段重要。
     """
-    # 商家信息摘要
+    # 透传所有非 None、非内部字段
     merchant_info = []
-    if merchant.get("brand_name"):
-        merchant_info.append(f"品牌名: {merchant['brand_name']}")
-    if merchant.get("categories"):
-        merchant_info.append(f"品类: {merchant['categories']}")
-    if merchant.get("style"):
-        merchant_info.append(f"风格: {merchant['style']}")
-    if merchant.get("pricing"):
-        merchant_info.append(f"价格档位: {merchant['pricing']}")
-    if merchant.get("product_count"):
-        merchant_info.append(f"产品数量: {merchant['product_count']}")
-    if merchant.get("location"):
-        merchant_info.append(f"地区: {merchant['location']}")
-    if merchant.get("shopify"):
-        merchant_info.append(f"Shopify店铺: {merchant['shopify']}")
-    if merchant.get("ig_followers"):
-        merchant_info.append(f"Instagram粉丝: {merchant['ig_followers']}")
-    if merchant.get("brand_type"):
-        merchant_info.append(f"类型: {merchant['brand_type']}")
-    if merchant.get("score_reason"):
-        merchant_info.append(f"匹配理由: {merchant['score_reason']}")
-    if merchant.get("notes"):
-        merchant_info.append(f"备注: {merchant['notes']}")
+    skip_keys = {"priority", "score_reason", "_id"}
+    for k, v in merchant.items():
+        if v is not None and k not in skip_keys and not k.startswith("_"):
+            # 将 key 可读化
+            display_key = k.replace("_", " ").title()
+            merchant_info.append(f"{display_key}: {v}")
 
     merchant_text = "\n".join(merchant_info) if merchant_info else "无详细信息"
 
@@ -77,35 +57,34 @@ def build_email_prompt(
 {template}
 """
 
-    return f"""你是一个专业的 B2B 冷邮件撰写专家。请为以下商家撰写一封个性化的开发信。
+    return f"""你是一个专业的 B2B 冷邮件撰写专家。请为以下目标客户撰写一封个性化的冷邮件。
 
 ## 我们的产品/服务
 {product_description}
 
 {f"## 发件人信息{chr(10)}{sender_info}" if sender_info else ""}
 
-## 目标商家信息
+## 目标客户信息
 {merchant_text}
 {template_section}
-## 要求
+## 写作原则
 1. {lang_instruction}
-2. 邮件标题要吸引注意力，与该商家的业务相关，避免明显的广告感
-3. 正文要简洁（150-250词），突出我们的产品如何帮助他们
-4. 要体现你了解他们的品牌（引用他们的品类、风格等信息）
-5. 包含明确的行动号召（CTA），如安排通话或回复邮件
-6. 语气专业但友好，不要过于推销
-7. 底部包含退订提示（CAN-SPAM 合规）
+2. 标题 3-7 词，像同事发来的，不像营销邮件
+3. 正文 4-5 句话，不超过 100 词
+4. 第一句：关于对方的具体观察（来自研究，不是泛泛恭维）
+5. 第二句：点破他们可能面临的结构性问题
+6. 第三句：一句话说你怎么解决（不罗列功能）
+7. 第四句：免费 offer，包装成"找反馈"而不是促销
+8. 第五句：极轻 CTA，允许对方说不
+9. 签名简洁：— {sender_name or "发件人名"}, {sender_company or "公司名"}
+10. 纯文本格式，不用 bold、bullet points
 
 请严格按以下 JSON 格式输出，不要加其他说明：
 {{"subject": "邮件标题", "body": "邮件正文（用 \\n 表示换行）"}}"""
 
 
 def parse_email_result(raw_text: str) -> dict | None:
-    """
-    解析 AI 生成的邮件结果。
-
-    返回: {"subject": str, "body": str} 或 None
-    """
+    """解析 AI 生成的邮件结果。"""
     # 尝试直接解析
     try:
         result = json.loads(raw_text)
@@ -139,26 +118,22 @@ def parse_email_result(raw_text: str) -> dict | None:
 
 def format_email_preview(merchant: dict, email_content: dict) -> str:
     """格式化单封邮件预览。"""
-    name = merchant.get("brand_name", "未知商家")
+    name = merchant.get("brand_name", "未知")
     email = merchant.get("email", "未知邮箱")
     subject = email_content.get("subject", "无标题")
     body = email_content.get("body", "无内容")
 
     return f"""━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📧 收件商家: {name}
-📨 收件邮箱: {email}
-📝 邮件标题: {subject}
+📧 收件人: {name}
+📨 邮箱: {email}
+📝 标题: {subject}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {body}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"""
 
 
 def format_batch_preview(send_list: list[dict]) -> str:
-    """
-    格式化批量发送预览。
-
-    send_list: [{"merchant": dict, "email_content": dict}, ...]
-    """
+    """格式化批量发送预览。"""
     lines = [f"## 待发送邮件预览（共 {len(send_list)} 封）\n"]
 
     for i, item in enumerate(send_list, 1):
@@ -170,7 +145,6 @@ def format_batch_preview(send_list: list[dict]) -> str:
 
         lines.append(f"### {i}. {name} ({email})")
         lines.append(f"**标题**: {subject}")
-        # 正文只显示前 100 字符
         body = content.get("body", "")
         preview = body[:100] + "..." if len(body) > 100 else body
         lines.append(f"**正文预览**: {preview}")
@@ -183,7 +157,7 @@ def format_batch_preview(send_list: list[dict]) -> str:
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("用法:")
-        print("  python3 email_generator.py --prompt <商家JSON> <产品描述>")
+        print("  python3 email_generator.py --prompt <客户JSON> <产品描述>")
         print("  python3 email_generator.py --parse <AI输出文本>")
         sys.exit(1)
 
