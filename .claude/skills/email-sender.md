@@ -125,9 +125,11 @@ export_tracking_excel(result, send_list, 'contact/Tracking.xlsx')
 
 追踪报告末尾告知用户：
 > "📋 后续建议：
-> 1. **3-5 天后** — 再扫一次收件箱，查看正式回复
-> 2. **1 周后** — 对暂无回复的品牌发 follow-up（第二封更短，2-3 句）
+> 1. **1-3 天后** — 调用 [email-followup skill](`.claude/skills/email-followup.md`) 查看回复并智能跟进
+> 2. **5-7 天后** — 对暂无回复的品牌发 follow-up
 > 3. **持续追踪** — 记录哪些标题/CTA 拿到回复，优化下一轮"
+
+**V2 追踪报告**：使用 `classify_responses_v2()` 和 `generate_tracking_report_v2()` 可区分自动回复和真人回复，支持意图检测（已转内部/转介绍/感兴趣/拒绝）。详见 `email-followup.md`。
 
 ## 独立使用场景
 

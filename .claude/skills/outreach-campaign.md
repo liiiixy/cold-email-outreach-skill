@@ -23,6 +23,7 @@
 | 第 2 步 | email-finder | `.claude/skills/email-finder.md` |
 | 第 3 步 | email-copywriter | `.claude/skills/email-copywriter.md` |
 | 第 4 步 | email-sender | `.claude/skills/email-sender.md` |
+| 第 5 步 | email-followup | `.claude/skills/email-followup.md` |
 
 ## 工具模块
 所有 Python 模块位于 `scripts/outreach/` 目录，由各子 skill 按需调用。
@@ -98,6 +99,31 @@
 
 ---
 
+### 第 5 步：追踪回复 + 智能跟进
+
+> **调用 [email-followup skill](`.claude/skills/email-followup.md`) 完成。**
+
+发送后 1-3 天执行（也可由用户随时触发）：
+
+- 扫描收件箱，**区分自动回复和真人回复**
+- 分析每封回复的意图（已转内部 / 转介绍 / 感兴趣 / 拒绝）
+- 针对性撰写跟进邮件：
+  - 真人回复 → thank you letter 或转介绍邮件
+  - 暂无回复 → 3-7 天后发 follow-up（更短、换角度）
+- 展示跟进邮件预览，用户确认后发送
+- 更新追踪报告
+
+**多轮跟进**：
+| 轮次 | 时机 | 策略 |
+|------|------|------|
+| 第 1 轮 | 发送后 1-3 天 | 处理回复 + thank you + 转介绍 |
+| 第 2 轮 | 发送后 5-7 天 | 对无回复的发 follow-up |
+| 第 3 轮 | 发送后 14 天 | 最后一次 break-up email |
+
+**交互节点**：每封跟进邮件都需用户确认后才发送。
+
+---
+
 ## 合规提醒（流程开始时告知用户）
 
 > "📋 **合规提醒**（CAN-SPAM / GDPR）：
@@ -128,6 +154,7 @@
 - `/tmp/outreach_merchants_with_email.json` - 补全邮箱后的列表
 - `/tmp/outreach_send_list.json` - 待发送列表（客户+邮件内容）
 - `/tmp/outreach_results.json` - 发送结果
+- `/tmp/outreach_tracking.json` - 完整追踪历史（含多轮跟进）
 
 ## 快速开始示例
 
