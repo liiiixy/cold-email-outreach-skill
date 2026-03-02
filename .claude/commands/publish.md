@@ -1,3 +1,8 @@
+---
+name: publish
+description: 从对话中生成 Skill 并打包发布到 GitHub
+---
+
 帮我打包和发布 Skill。
 
 请严格按照 `.claude/skills/skill-publisher.md` 中定义的工作流程执行。

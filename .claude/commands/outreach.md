@@ -1,3 +1,8 @@
+---
+name: outreach
+description: 冷邮件外展自动化 - 找客户、找邮箱、写邮件、发送追踪
+---
+
 帮我执行一轮冷邮件外展自动化流程。
 
 请严格按照 `.claude/skills/outreach-campaign.md` 中定义的工作流程执行，依次调用：
