@@ -63,12 +63,10 @@ fi
 # 复制 Skill 文件
 echo -e "${GREEN}[1/3] 复制 Skill 文件...${NC}"
 mkdir -p "$TARGET_DIR/.claude/skills"
-cp "$SCRIPT_DIR/.claude/skills/outreach-campaign.md" "$TARGET_DIR/.claude/skills/"
-cp "$SCRIPT_DIR/.claude/skills/email-finder.md" "$TARGET_DIR/.claude/skills/"
-cp "$SCRIPT_DIR/.claude/skills/email-copywriter.md" "$TARGET_DIR/.claude/skills/"
-echo "  → .claude/skills/outreach-campaign.md"
-echo "  → .claude/skills/email-finder.md"
-echo "  → .claude/skills/email-copywriter.md"
+for skill_file in "$SCRIPT_DIR/.claude/skills/"*.md; do
+    cp "$skill_file" "$TARGET_DIR/.claude/skills/"
+    echo "  → .claude/skills/$(basename "$skill_file")"
+done
 
 # 复制 Python 模块
 echo -e "${GREEN}[2/3] 复制 Python 模块...${NC}"
