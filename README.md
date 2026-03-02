@@ -12,6 +12,7 @@
 | 2 | email-finder | 多层策略查找联系邮箱（WebSearch → WebFetch → 浏览器） |
 | 3 | email-copywriter | 逐个研究收件人，撰写高回复率个性化冷邮件 |
 | 4 | email-sender | 批量发送 + 退信检测 + 自动重发 + 追踪报告 |
+| 5 | email-followup | 智能分类回复（真人/自动）+ 意图分析 + 针对性跟进 |
 
 ## 架构
 
@@ -20,10 +21,11 @@ outreach-campaign（编排器）
     ├── 第1步 → lead-researcher（找目标客户）
     ├── 第2步 → email-finder（找邮箱）
     ├── 第3步 → email-copywriter（写邮件）
-    └── 第4步 → email-sender（发送+追踪）
+    ├── 第4步 → email-sender（发送+追踪）
+    └── 第5步 → email-followup（智能跟进）
 ```
 
-5 个 Skill 各自独立、各自可触发，也可通过主流程串联。
+6 个 Skill 各自独立、各自可触发，也可通过主流程串联。
 
 ## 安装
 
@@ -43,7 +45,7 @@ chmod +x install.sh
 ```
 
 安装脚本会：
-1. 将 5 个 Skill 文件复制到 `.claude/skills/` 目录
+1. 将 6 个 Skill 文件复制到 `.claude/skills/` 目录
 2. 将 Python 模块复制到 `scripts/outreach/` 目录
 3. 安装 Python 依赖
 
@@ -73,7 +75,7 @@ pip3 install -r YOUR_PROJECT/scripts/outreach/requirements.txt
 帮我做一轮冷邮件 outreach
 ```
 
-Claude 会自动进入 4 步流程，逐步引导你完成。
+Claude 会自动进入 5 步流程，逐步引导你完成。
 
 ### 单独使用某个能力
 
@@ -84,6 +86,8 @@ Claude 会自动进入 4 步流程，逐步引导你完成。
 | "帮我写一封给 Nike 的冷邮件" | email-copywriter |
 | "帮我把这些邮件发出去" | email-sender |
 | "检查上次发的邮件有没有退信" | email-sender |
+| "帮我看一下昨天发的邮件有没有人回" | email-followup |
+| "给没回复的人发 follow-up" | email-followup |
 
 ### 支持的客户来源
 
@@ -122,7 +126,8 @@ your-project/
 │       ├── lead-researcher.md      # 目标客户研究与筛选
 │       ├── email-finder.md         # 邮箱查找
 │       ├── email-copywriter.md     # 冷邮件撰写
-│       └── email-sender.md         # 发送与追踪
+│       ├── email-sender.md         # 发送与追踪
+│       └── email-followup.md      # 智能跟进
 ├── scripts/
 │   └── outreach/
 │       ├── input_parser.py         # 文件解析（通用）
